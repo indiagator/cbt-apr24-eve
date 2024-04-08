@@ -24,7 +24,7 @@ public class OfferOrderViewService
     {
         List<Order> orderList = orderRepository.findByOfferid(offerid);
         List<Order> finalOrderList = orderList.stream().
-                filter(order -> orderstatusRepository.findByOrderid(order.getOrderid()).getStatus().equals("OPEN")).
+                filter(order -> orderstatusRepository.findByOrderid(order.getOrderid()).get().getStatus().equals("OPEN")).
                 collect(Collectors.toList());
 
         if(finalOrderList.isEmpty())
