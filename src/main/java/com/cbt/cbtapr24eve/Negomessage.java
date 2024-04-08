@@ -88,4 +88,9 @@ public class Negomessage {
         this.time = time;
     }
 
+    @Override
+    public String toString()
+    {
+        return   sender+" --> "+receiver+": "+message;
+    }
 }

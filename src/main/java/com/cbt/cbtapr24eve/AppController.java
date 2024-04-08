@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @RequestMapping("api/v1")
 public class AppController
 {
+    private final LogisticrfqRepository logisticrfqRepository;
     CredentialRepository credentialRepository;
     UserdetailRepository userdetailRepository;
     WalletRepository walletRepository;
@@ -31,21 +32,23 @@ public class AppController
     PaymentRepository paymentRepository;
     PaymentwalletlinkRepository paymentwalletlinkRepository;
     NegomessageRepository negomessageRepository;
+    private final PortRepository portRepository;
 
-    AppController( CredentialRepository credentialRepository,
-                   UserdetailRepository userdetailRepository,
-                   WalletRepository walletRepository,
-                   UsernamewalletlinkRepository usernamewalletlinkRepository,
-                   UsertypelinkRepository usertypelinkRepository,
-                   ProductRepository productRepository,
-                   ProductofferRepository productofferRepository,
-                   ProductofferstatusRepository productofferstatusRepository,
-                   OrderRepository orderRepository,
-                   OrderstatusRepository orderstatusRepository,
-                   OfferOrderViewService offerOrderViewService,
-                   PaymentRepository paymentRepository,
-                   PaymentwalletlinkRepository paymentwalletlinkRepository,
-                   NegomessageRepository negomessageRepository)
+    AppController(CredentialRepository credentialRepository,
+                  UserdetailRepository userdetailRepository,
+                  WalletRepository walletRepository,
+                  UsernamewalletlinkRepository usernamewalletlinkRepository,
+                  UsertypelinkRepository usertypelinkRepository,
+                  ProductRepository productRepository,
+                  ProductofferRepository productofferRepository,
+                  ProductofferstatusRepository productofferstatusRepository,
+                  OrderRepository orderRepository,
+                  OrderstatusRepository orderstatusRepository,
+                  OfferOrderViewService offerOrderViewService,
+                  PaymentRepository paymentRepository,
+                  PaymentwalletlinkRepository paymentwalletlinkRepository,
+                  NegomessageRepository negomessageRepository, LogisticrfqRepository logisticrfqRepository,
+                  PortRepository portRepository)
     {
         this.credentialRepository = credentialRepository;
         this.userdetailRepository = userdetailRepository;
@@ -61,6 +64,8 @@ public class AppController
         this.paymentRepository = paymentRepository;
         this.paymentwalletlinkRepository = paymentwalletlinkRepository;
         this.negomessageRepository = negomessageRepository;
+        this.logisticrfqRepository = logisticrfqRepository;
+        this.portRepository = portRepository;
     }
 
     @GetMapping("get/req")
@@ -272,6 +277,31 @@ public class AppController
         {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+    @GetMapping("get/conversation/{orderid}")
+    public ResponseEntity<List<String>> showConversation(@PathVariable String orderid)
+    {
+         List<String> messages =  negomessageRepository.findByNegorefid(orderid).stream().
+                 map(negomessage -> negomessage.toString()).collect(Collectors.toList());
+
+         return ResponseEntity.ok(messages);
+    }
+
+    @PostMapping("create/log/rfq")
+    public ResponseEntity<Logisticrfq> createLogRFQ(@RequestBody Logisticrfq logisticrfq)
+    {
+        logisticrfq.setRfqid(String.valueOf(UUID.randomUUID()));
+        logisticrfq.setStatus("OPEN");
+        logisticrfqRepository.save(logisticrfq);
+
+        return ResponseEntity.ok(logisticrfq);
+    }
+
+    @GetMapping("get/ports")
+    public ResponseEntity<List<Port>> getPorts()
+    {
+        return ResponseEntity.ok(portRepository.findAll());
     }
 
 
